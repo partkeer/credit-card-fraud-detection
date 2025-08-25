@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import confusion_matrix, precision_recall_curve, auc, roc_curve, roc_auc_score
 
 # Load dataset
@@ -15,6 +15,15 @@ df = df.drop_duplicates()
 # Split into features and target
 X = df.drop('Class', axis=1)
 y = df['Class']
+
+# Train isolation forest
+contamination = np.round(y.sum()/len(y), 3) # percentage of fraudulent transactions
+iso_forest = IsolationForest(n_estimators=100, max_samples=256, contamination=contamination)
+iso_forest.fit(X)
+
+# Calculate anomaly scores and add these to features
+anomaly_scores = iso_forest.decision_function(X)
+X['anomaly_scores'] = anomaly_scores
 
 # Split the data. Will use 20% for testing, 80% for training + validation
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1, stratify=y)
