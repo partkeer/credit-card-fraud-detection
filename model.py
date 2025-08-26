@@ -2,6 +2,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import confusion_matrix, precision_recall_curve, auc, roc_curve, roc_auc_score
@@ -28,14 +30,19 @@ X['anomaly_scores'] = anomaly_scores
 # Split the data. Will use 20% for testing, 80% for training + validation
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1, stratify=y)
 
-# Train random forest model
-model = RandomForestClassifier(n_estimators=100, random_state=1)
-model.fit(X_train, y_train)
+# Create a pipeline which scales data, then applies model
+# Use random forest model
+pipe = Pipeline([
+    ('scaler', StandardScaler()),
+    ('model', RandomForestClassifier(n_estimators=100, random_state=1))
+])
+
+pipe.fit(X_train, y_train)
 
 # Make predictions
-y_pred = model.predict(X_test)
+y_pred = pipe.predict(X_test)
 # Probability of positive class
-y_score = model.predict_proba(X_test)[:,1]
+y_score = pipe.predict_proba(X_test)[:,1]
 
 # Evaluate predictions
 confusion_mat = confusion_matrix(y_test, y_pred)
