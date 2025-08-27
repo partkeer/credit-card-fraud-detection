@@ -1,4 +1,4 @@
-# Do some preprocessing then train simple model
+# Do some preprocessing then train a model
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix, precision_recall_curve, auc, roc_curve, roc_auc_score
 
 # Load dataset
@@ -31,10 +32,10 @@ X['anomaly_scores'] = anomaly_scores
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1, stratify=y)
 
 # Create a pipeline which scales data, then applies model
-# Use random forest model
+# Use K-nearest neighbors
 pipe = Pipeline([
     ('scaler', StandardScaler()),
-    ('model', RandomForestClassifier(n_estimators=300, max_depth=30, min_samples_leaf=2, random_state=1))
+    ('model', KNeighborsClassifier(n_neighbors=3))
 ])
 
 pipe.fit(X_train, y_train)
