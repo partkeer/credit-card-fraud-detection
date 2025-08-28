@@ -1,13 +1,13 @@
-# Do some preprocessing then train a model
+# Do some preprocessing then train simple model
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier, IsolationForest
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import IsolationForest
 from sklearn.metrics import confusion_matrix, precision_recall_curve, auc, roc_curve, roc_auc_score
+from xgboost import XGBClassifier
 
 # Load dataset
 df = pd.read_csv('creditcard.csv')
@@ -32,10 +32,11 @@ X['anomaly_scores'] = anomaly_scores
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1, stratify=y)
 
 # Create a pipeline which scales data, then applies model
-# Use K-nearest neighbors
+# Use xgboost
 pipe = Pipeline([
     ('scaler', StandardScaler()),
-    ('model', KNeighborsClassifier(n_neighbors=3))
+    # hyperparameters are tuned
+    ('model', XGBClassifier(n_estimators=300, learning_rate=0.05, min_child_weight=2, subsample=0.9, colsample_bytree=0.5))
 ])
 
 pipe.fit(X_train, y_train)
